@@ -1,42 +1,127 @@
-# 💻 Montagem de PC API
+💻 Montagem de PC API
 
-Uma API RESTful desenvolvida com **TypeScript** e **Prisma** que simula um sistema de e-commerce de peças de computador. O projeto permite que usuários se cadastrem, comprem peças de lojas virtuais e gerenciem seus pedidos, com foco na aplicação de **transações atômicas** para garantir a integridade dos dados de estoque e saldo.
+API RESTful desenvolvida com TypeScript, Node.js, Express e Prisma ORM, simulando um sistema de e-commerce de peças de computador.
+O projeto tem foco em segurança, integridade dos dados e boas práticas de backend, incluindo autenticação, controle de acesso e rotinas de proteção contra uso indevido.
 
----
+🚀 Funcionalidades
+✅ Gestão de Usuários (User)
 
-## 🚀 Funcionalidades
+* Cadastro de usuários com validação de dados e senha criptografada (bcrypt)
 
-As seguintes funcionalidades foram implementadas na API:
+* Listagem de usuários (dados sensíveis controlados)
 
-### **CRUD em Entidades Básicas**
+* Atualização de dados do usuário autenticado
 
--   **`User` (Usuário):** Cadastro, listagem e atualização de informações de usuários.
--   **`Store` (Loja):** Gestão de lojas de eletrônicos.
--   **`Part` (Peça):** Gestão das peças de computador, incluindo nome, tipo, preço e estoque.
+* Exclusão de conta do usuário autenticado
 
-### **Transações**
+🔐 Autenticação e Segurança
 
--   **Compra de Peças:** Uma transação que registra a compra de um usuário. A transação é atômica e garante que:
-    1.  O saldo do usuário seja suficiente.
-    2.  O estoque das peças seja atualizado.
-    3.  O pedido e os itens do pedido sejam criados.
--   **Cancelamento de Pedido:** Uma transação que permite a exclusão de um pedido. A transação garante que:
-    1.  O pedido e os itens do pedido sejam removidos.
-    2.  O estoque das peças seja restabelecido.
+* Login com JWT (JSON Web Token)
 
----
+* Middleware de autenticação (authMiddleware)
 
-## 🛠️ Tecnologias
+* Rota protegida para validação da sessão (/usuarios/me)
 
--   **TypeScript:** Linguagem de programação.
--   **Node.js:** Ambiente de execução.
--   **Express:** Framework web para construção da API.
--   **Prisma ORM:** Ferramenta para mapeamento objeto-relacional (ORM) para interagir com o banco de dados.
--   **MySQL:** Sistema de gerenciamento de banco de dados relacional.
--   **JSON Web Tokens (JWT):** Para autenticação de usuários (opcional, mas recomendado).
+* Senhas armazenadas somente em formato criptografado
 
----
+* Validação de senha forte:
 
-## 📂 Modelagem do Banco de Dados
+Mínimo 8 caracteres
 
-O projeto utiliza o Prisma para a modelagem do banco de dados. A estrutura de dados (schema) é projetada para representar as relações entre usuários, lojas, peças e pedidos.
+Letra maiúscula, minúscula, número e símbolo
+
+🚫 Controle de Tentativas de Login
+
+* Contador de tentativas inválidas de login
+
+* Bloqueio automático do usuário após 3 tentativas inválidas
+
+* Reset das tentativas após login bem-sucedido
+
+* Registro de todas as tentativas no sistema de logs
+
+🔑 Alteração de Senha
+
+* Rota protegida para alteração de senha
+
+* Validação da senha atual
+
+* Criptografia da nova senha antes de salvar
+
+* Retorno da senha criptografada após alteração (conforme solicitado em aula)
+
+* Registro da ação em logs
+
+🧾 Sistema de Logs
+
+* Registro automático de ações importantes:
+
+Cadastro
+
+Login bem-sucedido
+
+Tentativas inválidas
+
+Alteração de senha
+
+Exclusão de usuários
+
+Consulta de logs via rota protegida
+
+Logs associados ao usuário responsável pela ação
+
+💾 Backup e Restore (Segurança Extra)
+
+Backup:
+
+Exporta usuários e logs para um arquivo .json
+
+Armazena o backup no servidor
+
+Restore:
+
+Restaura completamente o banco de dados a partir do arquivo de backup
+
+Remove dados atuais antes da restauração
+
+Recria usuários e logs mantendo integridade histórica
+
+🛠️ Tecnologias Utilizadas
+
+* TypeScript – Tipagem estática e organização do código
+
+* Node.js – Ambiente de execução
+
+* Express – Framework web
+
+* Prisma ORM – Comunicação com banco de dados
+
+* MySQL – Banco de dados relacional
+
+* JWT (jsonwebtoken) – Autenticação baseada em token
+
+* bcrypt – Criptografia de senhas
+
+* Zod – Validação de dados de entrada
+
+* Nodemailer – Estrutura preparada para envio de emails
+
+* File System (fs) – Geração e leitura de arquivos de backup
+
+📂 Modelagem do Banco de Dados
+
+O banco de dados é modelado com Prisma, representando:
+
+Usuários
+
+Logs de ações
+
+Campos específicos para segurança:
+
+tentativasLogin
+
+bloqueado
+
+ultimoLogin
+
+As relações garantem integridade referencial e permitem auditoria completa das ações realizadas no sistema.
