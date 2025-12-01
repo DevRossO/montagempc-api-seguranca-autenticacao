@@ -65,7 +65,7 @@ router.post("/", async (req, res) => {
 
     const usuario = await prisma.usuario.create({
       data: { nome, email, senha: senhaCriptografada, saldo },
-      select: { id: true, nome: true, email: true, saldo: true, ultimoLogin: true },
+      select: { id: true, nome: true, email: true, saldo: true, senha: true, ultimoLogin: true },
     });
 
     await registrarLog(usuario.id, "Cadastro de usuário");
@@ -171,9 +171,13 @@ router.put("/alterar-senha", authMiddleware, async (req, res) => {
 
   try {
     const { senhaAtual, novaSenha } = valida.data;
-    const usuario = await prisma.usuario.findUnique({ where: { id: req.user!.id } });
+    const usuario = await prisma.usuario.findUnique({
+      where: { id: req.user!.id }
+    });
 
-    if (!usuario || !usuario.senha) return res.status(404).json({ erro: "Usuário não encontrado" });
+    if (!usuario || !usuario.senha) {
+      return res.status(404).json({ erro: "Usuário não encontrado" });
+    }
 
     const senhaCorreta = await bcrypt.compare(senhaAtual, usuario.senha);
     if (!senhaCorreta) {
@@ -182,10 +186,24 @@ router.put("/alterar-senha", authMiddleware, async (req, res) => {
     }
 
     const novaSenhaCriptografada = await bcrypt.hash(novaSenha, 10);
-    await prisma.usuario.update({ where: { id: usuario.id }, data: { senha: novaSenhaCriptografada } });
+
+    const usuarioAtualizado = await prisma.usuario.update({
+      where: { id: usuario.id },
+      data: { senha: novaSenhaCriptografada },
+      select: {
+        id: true,
+        email: true,
+        senha: true
+      }
+    });
+
     await registrarLog(usuario.id, "Senha alterada com sucesso");
 
-    res.json({ mensagem: "Senha alterada com sucesso" });
+    res.json({
+      mensagem: "Senha alterada com sucesso",
+      usuario: usuarioAtualizado
+    });
+
   } catch {
     res.status(500).json({ erro: "Erro ao alterar senha" });
   }
